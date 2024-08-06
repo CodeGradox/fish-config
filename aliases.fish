@@ -11,13 +11,17 @@ alias reload="source $HOME/.config/fish/config.fish"
 
 alias s="brew search"
 
-alias ls="exa"
-alias la="exa -la"
+alias ls="eza"
+alias la="eza -la"
 alias free="free -h"
 alias df="df -h"
 alias du="du -h"
 
 # Work directory...
-alias ikb="cd ~/projects/ikbygg-web"
+alias ikb="cd ~/projects/laft-web"
+
+alias nconf="cd ~/.config/nvim/lua/gradox"
 
 alias bat="bat -n"
+
+alias newrelic-cli="/opt/homebrew/bin/newrelic"
