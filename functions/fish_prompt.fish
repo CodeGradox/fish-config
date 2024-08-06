@@ -1,5 +1,5 @@
 function fish_prompt --description="Custom terminal prompt"
-    set -l directory (set_color blue) (pwd | sed "s|^$HOME|~|") (set_color normal)
+    set -l directory (set_color cyan) (pwd | sed "s|^$HOME|~|") (set_color normal)
     set -l chevron (set_color white) ' >'
 
     # If there is a SSH session...
