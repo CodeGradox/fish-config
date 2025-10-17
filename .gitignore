@@ -1,1 +1,3 @@
 /functions/fzf_key_bindings.fish
+/completions
+fish_variables
