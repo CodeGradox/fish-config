@@ -2,8 +2,10 @@ function ras --description="Start the rails server"
   set_color red
   echo "Starting rails server"
   set_color normal
-  
-  set -lx OVERMIND_SKIP_ENV true 
-  overmind start -f Procfile.dev
-  #bin/docker start
+
+  if test -f Procfile.dev
+    overmind start -f Procfile.dev
+  else
+    overmind start
+  end
 end
