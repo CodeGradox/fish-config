@@ -5,7 +5,8 @@ set -gx RAILS_ENV 'development'
 # Used by certain Rails tasks
 set -gx THOR_MERGE "nvim -d"
 # Variable used by ikbygg-web to find the wkhtmltopdf binary.
-set -gx BAT_THEME 'OneHalfLight'
+# set -gx BAT_THEME 'OneHalfLight'
+set -gx BAT_THEME 'ansi'
 # This is where n (node version manager) will install the node binaries.
 # Make sure that $HOME/b/bin is present in the $PATH.
 # npm i -g n
