@@ -1,43 +1,63 @@
 function gtree --description "Create a git worktree with automatic branch creation and setup"
-    # Check if an argument was provided
+    # Parse arguments
+    argparse 'd/directory=' -- $argv
+    or return 1
+
+    # Check if a branch name was provided
     if test (count $argv) -ne 1
-        echo "Usage: gtree <branch-name>"
+        echo "Usage: gtree <branch-name> [-d <base-directory-name>]"
         echo "Example: gtree feature/add-new-module"
+        echo "Example: gtree feature/add-users -d laft-web"
         return 1
     end
 
     set branch_name $argv[1]
 
-    # Get the current folder name
-    set current_folder (basename $PWD)
+    # Get the base folder name (either from -d flag or current folder)
+    if set -q _flag_directory
+        set base_folder $_flag_directory
+    else
+        set base_folder (basename $PWD)
+    end
 
-    # Strip away namespace prefixes (feature/, bugfix/, etc.)
-    # Extract everything after the last slash in the branch name
-    set folder_suffix (string replace -r '^.+/' '' $branch_name)
+    # Convert namespace slashes to dashes (e.g., feature/add-users -> feature-add-users)
+    set folder_suffix (string replace -a '/' '-' $branch_name)
 
-    # Also strip common prefixes from the folder suffix if they exist
-    set folder_suffix (string replace -r '^(feature|bugfix|hotfix|fix|bug)-' '' $folder_suffix)
-
-    # Construct the new folder name using current folder as-is
-    set new_folder_name "$current_folder-$folder_suffix"
+    # Construct the new folder name
+    set new_folder_name "$base_folder-$folder_suffix"
     set new_folder_path "../$new_folder_name"
 
     echo "Creating worktree for branch: $branch_name"
     echo "New folder: $new_folder_path"
 
-    # Check if branch exists, if not create it
-    if not git show-ref --verify --quiet "refs/heads/$branch_name"
-        echo "Branch '$branch_name' does not exist. Creating it..."
+    # Fetch latest remote branches
+    echo "Fetching latest branches from remote..."
+    git fetch
+    if test $status -ne 0
+        echo "Warning: Failed to fetch from remote, continuing anyway..."
+    end
+
+    # Check if branch exists locally or remotely
+    set local_exists (git show-ref --verify --quiet "refs/heads/$branch_name"; echo $status)
+    set remote_exists (git show-ref --verify --quiet "refs/remotes/origin/$branch_name"; echo $status)
+
+    if test $local_exists -eq 0
+        echo "Branch '$branch_name' exists locally"
+    else if test $remote_exists -eq 0
+        echo "Branch '$branch_name' exists on remote, will track it"
+        # Let git worktree add handle the tracking setup
+    else
+        echo "Branch '$branch_name' does not exist locally or on remote. Creating new local branch..."
         git branch $branch_name
         if test $status -ne 0
             echo "Error: Failed to create branch"
             return 1
         end
-    else
-        echo "Branch '$branch_name' already exists"
     end
 
     # Create the worktree
+    # If the branch exists on remote but not locally, this will automatically
+    # create a local tracking branch
     git worktree add $new_folder_path $branch_name
     if test $status -ne 0
         echo "Error: Failed to create worktree"
