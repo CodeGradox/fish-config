@@ -1,13 +1,14 @@
 function gtree --description "Create a git worktree with automatic branch creation and setup"
     # Parse arguments
-    argparse 'd/directory=' -- $argv
+    argparse 'd/directory=' 'b/branch=' -- $argv
     or return 1
 
     # Check if a branch name was provided
     if test (count $argv) -ne 1
-        echo "Usage: gtree <branch-name> [-d <base-directory-name>]"
+        echo "Usage: gtree <branch-name> [-d <base-directory-name>] [-b <source-branch>]"
         echo "Example: gtree feature/add-new-module"
         echo "Example: gtree feature/add-users -d laft-web"
+        echo "Example: gtree -b staging feature/htmx-table"
         return 1
     end
 
@@ -43,12 +44,23 @@ function gtree --description "Create a git worktree with automatic branch creati
 
     if test $local_exists -eq 0
         echo "Branch '$branch_name' exists locally"
+        if set -q _flag_branch
+            echo "Warning: -b/--branch flag ignored since branch already exists"
+        end
     else if test $remote_exists -eq 0
         echo "Branch '$branch_name' exists on remote, will track it"
+        if set -q _flag_branch
+            echo "Warning: -b/--branch flag ignored since branch exists on remote"
+        end
         # Let git worktree add handle the tracking setup
     else
-        echo "Branch '$branch_name' does not exist locally or on remote. Creating new local branch..."
-        git branch $branch_name
+        if set -q _flag_branch
+            echo "Branch '$branch_name' does not exist. Creating from '$_flag_branch'..."
+            git branch $branch_name $_flag_branch
+        else
+            echo "Branch '$branch_name' does not exist locally or on remote. Creating new local branch..."
+            git branch $branch_name
+        end
         if test $status -ne 0
             echo "Error: Failed to create branch"
             return 1
