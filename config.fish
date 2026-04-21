@@ -14,7 +14,6 @@ set -gx N_PREFIX "$HOME/n"
 # ruby-build installs a non-Homebrew OpenSSL for each Ruby version installed
 # and these are never upgraded. To link Rubies to Homebrew's OpenSSL 1.1 we use
 # this variable.
-set -gx RUBY_CONFIGURE_OPTS "--with-openssl-dir=$(brew --prefix openssl@1.1)"
 
 set -gx HEROKU_ORGANIZATION "laft"
 
