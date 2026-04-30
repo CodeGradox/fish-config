@@ -76,14 +76,6 @@ function gtree --description "Create a git worktree with automatic branch creati
         return 1
     end
 
-    # Copy .env.local if it exists
-    if test -f .env.local
-        echo "Copying .env.local to new worktree..."
-        cp .env.local $new_folder_path/.env.local
-    else
-        echo "No .env.local file found to copy"
-    end
-
     # Open in Zed
     echo "Opening project in Zed..."
     zed $new_folder_path
